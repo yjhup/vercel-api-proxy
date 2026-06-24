@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络加速</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { height: 100vh; overflow: hidden; background: #fff; }
+        #proxyFrame { width: 100%; height: 100%; border: none; }
+        #header { position: fixed; top: 0; left: 0; right: 0; height: 40px; background: #24292e; display: flex; align-items: center; padding: 0 12px; z-index: 1000; }
+        #header input { flex: 1; height: 28px; padding: 0 10px; border: none; border-radius: 4px; background: #3f4448; color: #fff; font-size: 14px; }
+        #header button { margin-left: 8px; height: 28px; padding: 0 16px; border: none; border-radius: 4px; background: #2ea44f; color: #fff; font-size: 14px; cursor: pointer; }
+        #header button:hover { background: #238636; }
+        #header .direct-btn { background: #8957e5; }
+        #header .direct-btn:hover { background: #7c3aed; }
+        .iframe-container { margin-top: 40px; height: calc(100vh - 40px); }
+        #loginInfo { position: fixed; top: 40px; left: 0; right: 0; background: #fff3cd; border-bottom: 1px solid #ffeeba; color: #856404; padding: 8px; text-align: center; font-size: 13px; z-index: 999; display: flex; justify-content: center; align-items: center; gap: 12px; }
+        #loginInfo a { color: #007bff; text-decoration: none; }
+        #loginInfo a:hover { text-decoration: underline; }
+        #loginInfo .close-btn { margin-left: 16px; cursor: pointer; color: #6c757d; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <input type="text" id="urlInput" placeholder="输入URL" />
+        <button id="goBtn">加速访问</button>
+        <button id="directBtn" class="direct-btn">直接访问</button>
+    </div>
+    <div id="loginInfo">
+        <span>🔒 登录相关功能需要直接访问原始网站</span>
+        <a id="directLink" href="#" target="_blank">点击打开原始网站登录</a>
+        <span class="close-btn" onclick="this.parentElement.style.display='none'">×</span>
+    </div>
+    <div class="iframe-container">
+        <iframe id="proxyFrame" src="" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation"></iframe>
+    </div>
+
+    <script>
+        const proxyFrame = document.getElementById('proxyFrame');
+        const urlInput = document.getElementById('urlInput');
+        const goBtn = document.getElementById('goBtn');
+        const directBtn = document.getElementById('directBtn');
+        const directLink = document.getElementById('directLink');
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function loadUrl(url) {
+            if (!url) return;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            const proxyUrl = `${window.location.origin}/${url.startsWith('https://') ? 'https' : 'http'}/${url.substring(url.indexOf('://') + 3)}`;
+            proxyFrame.src = proxyUrl;
+            urlInput.value = url;
+            directLink.href = url;
+        }
+
+        goBtn.addEventListener('click', () => {
+            loadUrl(urlInput.value);
+        });
+
+        directBtn.addEventListener('click', () => {
+            const url = urlInput.value;
+            if (!url) return;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            window.open(url, '_blank');
+        });
+
+        urlInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                loadUrl(urlInput.value);
+            }
+        });
+
+        const targetUrl = getQueryParam('url');
+        if (targetUrl) {
+            loadUrl(decodeURIComponent(targetUrl));
+        }
+    </script>
+</body>
+</html>
