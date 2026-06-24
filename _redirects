@@ -1,4 +1,2 @@
 /https/:match/:url* https://:match/:url* 200!
 /http/:match/:url* http://:match/:url* 200!
-/wss/:match/:url* wss://:match/:url* 200!
-/:protocol/:match/:url* :protocol://:match/:url* 200!

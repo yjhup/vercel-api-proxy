@@ -6,46 +6,75 @@
     <title>网络加速</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { height: 100vh; overflow: hidden; background: #fff; }
-        #proxyFrame { width: 100%; height: 100%; border: none; }
-        #header { position: fixed; top: 0; left: 0; right: 0; height: 40px; background: #24292e; display: flex; align-items: center; padding: 0 12px; z-index: 1000; }
-        #header input { flex: 1; height: 28px; padding: 0 10px; border: none; border-radius: 4px; background: #3f4448; color: #fff; font-size: 14px; }
-        #header button { margin-left: 8px; height: 28px; padding: 0 16px; border: none; border-radius: 4px; background: #2ea44f; color: #fff; font-size: 14px; cursor: pointer; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1e1e1e; }
+        #header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #24292e; display: flex; align-items: center; padding: 0 16px; z-index: 1000; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        #header input { flex: 1; max-width: 600px; height: 36px; padding: 0 14px; border: none; border-radius: 6px; background: #3f4448; color: #fff; font-size: 14px; }
+        #header input:focus { outline: 1px solid #58a6ff; }
+        #header button { height: 36px; padding: 0 20px; border: none; border-radius: 6px; background: #2ea44f; color: #fff; font-size: 14px; cursor: pointer; font-weight: 500; }
         #header button:hover { background: #238636; }
+        #header button:active { transform: scale(0.98); }
         #header .direct-btn { background: #8957e5; }
         #header .direct-btn:hover { background: #7c3aed; }
-        .iframe-container { margin-top: 40px; height: calc(100vh - 40px); }
-        #loginInfo { position: fixed; top: 40px; left: 0; right: 0; background: #fff3cd; border-bottom: 1px solid #ffeeba; color: #856404; padding: 8px; text-align: center; font-size: 13px; z-index: 999; display: flex; justify-content: center; align-items: center; gap: 12px; }
-        #loginInfo a { color: #007bff; text-decoration: none; }
-        #loginInfo a:hover { text-decoration: underline; }
-        #loginInfo .close-btn { margin-left: 16px; cursor: pointer; color: #6c757d; font-size: 16px; }
+        #content { margin-top: 56px; }
+        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #fff; }
+        #loading .spinner { width: 50px; height: 50px; border: 4px solid #3f4448; border-top: 4px solid #2ea44f; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #loading p { font-size: 14px; opacity: 0.7; }
+        #content iframe { width: 100%; height: calc(100vh - 56px); border: none; }
+        .info-bar { position: fixed; top: 56px; left: 0; right: 0; background: #2d333b; border-bottom: 1px solid #3f4448; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 999; }
+        .info-bar .text { color: #9ca3af; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+        .info-bar .text strong { color: #f0883e; }
+        .info-bar .actions { display: flex; gap: 8px; }
+        .info-bar .actions a { padding: 4px 12px; border-radius: 4px; background: #3f4448; color: #fff; text-decoration: none; font-size: 12px; }
+        .info-bar .actions a:hover { background: #484f58; }
+        .info-bar .close-btn { cursor: pointer; color: #6c757d; margin-left: 8px; font-size: 16px; }
+        .info-bar .close-btn:hover { color: #fff; }
     </style>
 </head>
 <body>
     <div id="header">
-        <input type="text" id="urlInput" placeholder="输入URL" />
+        <input type="text" id="urlInput" placeholder="输入URL，例如 github.com" />
         <button id="goBtn">加速访问</button>
         <button id="directBtn" class="direct-btn">直接访问</button>
     </div>
-    <div id="loginInfo">
-        <span>🔒 登录相关功能需要直接访问原始网站</span>
-        <a id="directLink" href="#" target="_blank">点击打开原始网站登录</a>
-        <span class="close-btn" onclick="this.parentElement.style.display='none'">×</span>
+    <div class="info-bar" id="infoBar">
+        <div class="text">
+            <span>�</span>
+            <span>部分网站（如 GitHub）对数据中心 IP 有访问限制，请使用</span>
+            <strong>直接访问</strong>
+            <span>按钮打开原始网站登录后，再返回此处浏览</span>
+            <span class="close-btn" onclick="document.getElementById('infoBar').style.display='none'">×</span>
+        </div>
+        <div class="actions">
+            <a id="directLink" href="#" target="_blank">打开原始网站</a>
+        </div>
     </div>
-    <div class="iframe-container">
-        <iframe id="proxyFrame" src="" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation"></iframe>
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>正在连接...</p>
     </div>
+    <div id="content"></div>
 
     <script>
-        const proxyFrame = document.getElementById('proxyFrame');
+        const content = document.getElementById('content');
         const urlInput = document.getElementById('urlInput');
         const goBtn = document.getElementById('goBtn');
         const directBtn = document.getElementById('directBtn');
         const directLink = document.getElementById('directLink');
+        const loading = document.getElementById('loading');
 
         function getQueryParam(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
+        }
+
+        function getProxyUrl(url) {
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            const protocol = url.startsWith('https://') ? 'https' : 'http';
+            const rest = url.substring(url.indexOf('://') + 3);
+            return `${window.location.origin}/${protocol}/${rest}`;
         }
 
         function loadUrl(url) {
@@ -53,11 +82,31 @@
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url;
             }
-            
-            const proxyUrl = `${window.location.origin}/${url.startsWith('https://') ? 'https' : 'http'}/${url.substring(url.indexOf('://') + 3)}`;
-            proxyFrame.src = proxyUrl;
+
             urlInput.value = url;
             directLink.href = url;
+            content.innerHTML = '';
+            loading.style.display = 'block';
+
+            const proxyUrl = getProxyUrl(url);
+            
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = 'calc(100vh - 96px)';
+            iframe.style.border = 'none';
+            iframe.sandbox = 'allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation allow-modals allow-downloads';
+            iframe.referrerPolicy = 'no-referrer-when-downgrade';
+            
+            iframe.onload = () => {
+                loading.style.display = 'none';
+            };
+            
+            iframe.onerror = () => {
+                loading.style.display = 'none';
+            };
+            
+            iframe.src = proxyUrl;
+            content.appendChild(iframe);
         }
 
         goBtn.addEventListener('click', () => {
@@ -65,7 +114,7 @@
         });
 
         directBtn.addEventListener('click', () => {
-            const url = urlInput.value;
+            let url = urlInput.value;
             if (!url) return;
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url;
