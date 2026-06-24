@@ -1,2 +1,2 @@
-/https/:match/:url* https://:match/:url* 302
-/http/:match/:url* http://:match/:url* 302
+/https/:match/:url* https://:match/:url* 200!
+/http/:match/:url* http://:match/:url* 200!
