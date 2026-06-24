@@ -6,29 +6,25 @@
     <title>网络加速</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1e1e1e; }
-        #header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #24292e; display: flex; align-items: center; padding: 0 16px; z-index: 1000; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-        #header input { flex: 1; max-width: 600px; height: 36px; padding: 0 14px; border: none; border-radius: 6px; background: #3f4448; color: #fff; font-size: 14px; }
-        #header input:focus { outline: 1px solid #58a6ff; }
-        #header button { height: 36px; padding: 0 20px; border: none; border-radius: 6px; background: #2ea44f; color: #fff; font-size: 14px; cursor: pointer; font-weight: 500; }
-        #header button:hover { background: #238636; }
-        #header button:active { transform: scale(0.98); }
-        #header .direct-btn { background: #8957e5; }
-        #header .direct-btn:hover { background: #7c3aed; }
-        #content { margin-top: 56px; }
-        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #fff; }
-        #loading .spinner { width: 50px; height: 50px; border: 4px solid #3f4448; border-top: 4px solid #2ea44f; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #loading p { font-size: 14px; opacity: 0.7; }
-        #content iframe { width: 100%; height: calc(100vh - 56px); border: none; }
-        .info-bar { position: fixed; top: 56px; left: 0; right: 0; background: #2d333b; border-bottom: 1px solid #3f4448; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 999; }
-        .info-bar .text { color: #9ca3af; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-        .info-bar .text strong { color: #f0883e; }
-        .info-bar .actions { display: flex; gap: 8px; }
-        .info-bar .actions a { padding: 4px 12px; border-radius: 4px; background: #3f4448; color: #fff; text-decoration: none; font-size: 12px; }
-        .info-bar .actions a:hover { background: #484f58; }
-        .info-bar .close-btn { cursor: pointer; color: #6c757d; margin-left: 8px; font-size: 16px; }
-        .info-bar .close-btn:hover { color: #fff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
+        #header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #161b22; display: flex; align-items: center; padding: 0 16px; z-index: 1000; gap: 12px; border-bottom: 1px solid #30363d; }
+        #header input { flex: 1; max-width: 600px; height: 36px; padding: 0 14px; border: 1px solid #30363d; border-radius: 6px; background: #21262d; color: #fff; font-size: 14px; }
+        #header input:focus { outline: 1px solid #58a6ff; border-color: #58a6ff; }
+        #header button { height: 36px; padding: 0 20px; border: none; border-radius: 6px; background: #238636; color: #fff; font-size: 14px; cursor: pointer; font-weight: 500; }
+        #header button:hover { background: #2ea44f; }
+        #header .direct-btn { background: #58a6ff; }
+        #header .direct-btn:hover { background: #79c0ff; }
+        #content { margin-top: 56px; padding: 20px; }
+        .notice { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .notice h3 { color: #fff; font-size: 16px; margin-bottom: 8px; }
+        .notice p { font-size: 14px; color: #8b949e; line-height: 1.6; }
+        .notice a { color: #58a6ff; text-decoration: none; }
+        .notice a:hover { text-decoration: underline; }
+        .warning { background: rgba(248, 81, 73, 0.1); border-color: rgba(248, 81, 73, 0.3); }
+        .warning h3 { color: #f85149; }
+        .quick-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+        .quick-links a { padding: 8px 16px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; text-decoration: none; font-size: 14px; }
+        .quick-links a:hover { background: #30363d; }
     </style>
 </head>
 <body>
@@ -37,36 +33,27 @@
         <button id="goBtn">加速访问</button>
         <button id="directBtn" class="direct-btn">直接访问</button>
     </div>
-    <div class="info-bar" id="infoBar">
-        <div class="text">
-            <span>�</span>
-            <span>部分网站（如 GitHub）对数据中心 IP 有访问限制，请使用</span>
-            <strong>直接访问</strong>
-            <span>按钮打开原始网站登录后，再返回此处浏览</span>
-            <span class="close-btn" onclick="document.getElementById('infoBar').style.display='none'">×</span>
+    <div id="content">
+        <div class="notice warning">
+            <h3>⚠️ 访问限制说明</h3>
+            <p>部分网站（如 GitHub）对数据中心 IP 有访问限制。如果通过加速访问遇到登录/验证页面，请点击「直接访问」按钮在新标签页打开原始网站。</p>
+            <p>登录验证完成后，浏览器会保存登录状态，后续访问将更加顺畅。</p>
         </div>
-        <div class="actions">
-            <a id="directLink" href="#" target="_blank">打开原始网站</a>
+        <div class="notice">
+            <h3>💡 使用方式</h3>
+            <p>在上方输入框中输入目标网址，点击「加速访问」按钮开始浏览。</p>
+            <div class="quick-links">
+                <a href="#" onclick="loadUrl('https://github.com')">GitHub</a>
+                <a href="#" onclick="loadUrl('https://github.com/trending')">GitHub Trending</a>
+                <a href="#" onclick="loadUrl('https://github.com/explore')">GitHub Explore</a>
+            </div>
         </div>
     </div>
-    <div id="loading">
-        <div class="spinner"></div>
-        <p>正在连接...</p>
-    </div>
-    <div id="content"></div>
 
     <script>
-        const content = document.getElementById('content');
         const urlInput = document.getElementById('urlInput');
         const goBtn = document.getElementById('goBtn');
         const directBtn = document.getElementById('directBtn');
-        const directLink = document.getElementById('directLink');
-        const loading = document.getElementById('loading');
-
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
 
         function getProxyUrl(url) {
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -82,31 +69,8 @@
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url;
             }
-
             urlInput.value = url;
-            directLink.href = url;
-            content.innerHTML = '';
-            loading.style.display = 'block';
-
-            const proxyUrl = getProxyUrl(url);
-            
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = 'calc(100vh - 96px)';
-            iframe.style.border = 'none';
-            iframe.sandbox = 'allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation allow-modals allow-downloads';
-            iframe.referrerPolicy = 'no-referrer-when-downgrade';
-            
-            iframe.onload = () => {
-                loading.style.display = 'none';
-            };
-            
-            iframe.onerror = () => {
-                loading.style.display = 'none';
-            };
-            
-            iframe.src = proxyUrl;
-            content.appendChild(iframe);
+            window.location.href = getProxyUrl(url);
         }
 
         goBtn.addEventListener('click', () => {
@@ -127,11 +91,6 @@
                 loadUrl(urlInput.value);
             }
         });
-
-        const targetUrl = getQueryParam('url');
-        if (targetUrl) {
-            loadUrl(decodeURIComponent(targetUrl));
-        }
     </script>
 </body>
 </html>
